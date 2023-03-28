@@ -152,7 +152,6 @@ useLayoutEffect(() => {
         start: 'top 85%',
         end: 'bottom 15%',
         animation: timelines[index],
-        markers: true,
         toggleActions: 'play reverse play reverse',
       });
   });

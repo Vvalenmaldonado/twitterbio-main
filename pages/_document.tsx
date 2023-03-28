@@ -10,13 +10,14 @@ class MyDocument extends Document {
             name="description"
             content="Generate your next food recipe in seconds."
           />
-          <meta property="og:site_name" content="twitterbio.com" />
+          <meta property="og:site_name" content="
+generator-recipe-gpt.vercel.app" />
           <meta
             property="og:description"
             content="Generate your next food recipe in seconds."
           />
           <meta property="og:title" content="Food Recipe Generator" />
-          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:card" content="/ogCard.jpg" />
           <meta name="twitter:title" content="Food Recipe Generator." />
           <meta
             name="twitter:description"
@@ -24,11 +25,11 @@ class MyDocument extends Document {
           />
           <meta
             property="og:image"
-            content="https://twitterbio.com/og-image.png"
+            content="/ogCard.jpg"
           />
           <meta
             name="twitter:image"
-            content="https://twitterbio.com/og-image.png"
+            content="/ogCard.jpg"
           />
         </Head>
         <body>

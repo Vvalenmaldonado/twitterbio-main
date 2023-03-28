@@ -22,7 +22,7 @@ import ScrollHandler from '../components/ScrollHandler';
 const Home: NextPage = () => {
   const [loading, setLoading] = useState(false); //INDICADOR DE CARGA.
   const [bio, setBio] = useState("");  //Inicia con cadena vacia, es la informacion que da el usuario.
-  const [vibe, setVibe] = useState<VibeType>("Vegetarian"); //La forma o tipo de biografia.
+  const [vibe, setVibe] = useState<VibeType>("Non-restricted"); //La forma o tipo de biografia.
   const [generatedBios, setGeneratedBios] = useState(""); //Almacena las biografias generadas por la AI.
   //three
 const canvasRef = useRef<null | HTMLCanvasElement>(null);
@@ -38,7 +38,26 @@ const containerRef = useRef<null | any   >(null);
   };
 
   const prompt = `Desarrolla un asistente virtual de cocina que proporcione instrucciones detalladas y consejos prácticos para la preparación de recetas personalizadas. 
-  Tu objetivo es proporcionar una receta paso por paso basada en estos ingredientes: ${bio} Asegurate que la respuesta no exceda los 1000 caracteres y si la receta necesita coccion, aclara el tiempo y los grados a los que se deberia cocinar. ${
+  Tu objetivo es proporcionar una receta paso por paso basada en estos ingredientes: ${bio} Asegurate que la respuesta no exceda los 1000 caracteres y si la receta necesita coccion, aclara el tiempo y los grados a los que se deberia cocinar.
+  ${
+    vibe === "Vegetarian"
+      ? "Asegurate que la receta sea vegetariana. Si usa ingredientes no apto en una receta vegetariana, asegurate de quitarlos de la receta y avisa que fueron eliminados"
+      : null
+  } ${
+    vibe === "Vegan"
+      ? "Asegurate que la receta sea Vegana.Si usa ingredientes de origen animal, asegurate de quitarlos de la receta y avisa que fueron eliminados."
+      : null
+  }${
+    vibe === "Gluten-free"
+      ? "Asegurate que la receta sea libre de gluten. Si usa ingredientes con gluten, asegurate de quitarlos de la receta y avisa que fueron eliminados."
+      : null
+  }
+  ${
+    vibe === "Pregnancy-safe"
+      ? "Asegurate que la receta apta para embarazadas, Si agrega ingredientes no aptos para embarazadas, asegurate de quitarlos de la receta y avisa que fueron eliminados."
+      : null
+  }
+  ${
     bio.slice(-1) === "." ? "" : "." // slice(-1) obtiene el ultimo caracter, Si la variable "bio" no termina en un punto ".", se agrega un punto al final de la cadena.
   }`;
 
@@ -177,6 +196,7 @@ useLayoutEffect(() => {
        // Animamos el objeto
     const clock = new THREE.Clock()
     let lastElapsedTime = 0
+   
 
     //Animacion Adentro del renderizado.
     function tick() {
@@ -198,11 +218,12 @@ let currentSection = 0
 let scrollDirection: any= null
 
 
-window.addEventListener('wheel', () => {
+window.addEventListener('scroll', () => {
+
 
   const prevScrollY = scrollY
   scrollY = window.scrollY
-
+  
   if (scrollY > prevScrollY) {
     scrollDirection = 'down'
   } else if (scrollY < prevScrollY) {
@@ -210,10 +231,10 @@ window.addEventListener('wheel', () => {
   }
 console.log(scrollDirection,'scrollDirection')
   const newSection = Math.round(scrollY / sizes.height)
+
   if (newSection !== currentSection) {
     currentSection = newSection
-    
-    console.log(currentSection,'currentSection')
+    console.log(currentSection,'currentSection') 
     if (scrollDirection === 'down' ) {
       console.log(currentSection * sizes.height + sizes.height * 0.5 - window.innerHeight * 0.5,'down')
         window.scrollTo({
@@ -224,7 +245,6 @@ console.log(scrollDirection,'scrollDirection')
     
     if (scrollDirection === 'up') {
       console.log(currentSection * sizes.height + sizes.height * 0.5 - window.innerHeight * 0.5,'UP')
-
         window.scrollTo({
           top: currentSection * sizes.height + sizes.height * 0.5 - window.innerHeight * 0.5,
           behavior: 'smooth',
@@ -300,7 +320,7 @@ console.log(scrollDirection,'scrollDirection')
       })
       scene.add(glb.scene)
     })
-
+  console.log(chef,'chef')
 //On reload
 window.onbeforeunload = function(){ //Al actualizar la pagina, vuelve al scroll en 0
   window.scrollTo(0,0)
@@ -342,7 +362,7 @@ renderer.render(scene, camera);
       ref={canvasRef} 
   
     />
-        <section className='one'>
+        <section className='one' >
           <div className="container " ref={section1Ref} >
             <div className="hero ">
             <h2 className="animate max-w-[900px] font-bold text-white ">

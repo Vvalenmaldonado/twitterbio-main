@@ -10,14 +10,14 @@ function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
 }
 
-export type VibeType = "Vegetarian" | "Vegan" | "Gluten-free";
+export type VibeType = "Vegetarian" | "Vegan" | "Gluten-free" | 'Non-restricted' | 'Pregnancy-safe';
 
 interface DropDownProps {
   vibe: VibeType;
   setVibe: (vibe: VibeType) => void;
 }
 
-let vibes: VibeType[] = ["Vegetarian", "Vegan", "Gluten-free"];
+let vibes: VibeType[] = ['Non-restricted',"Vegetarian", "Vegan", "Gluten-free",'Pregnancy-safe'];
 
 export default function DropDown({ vibe, setVibe }: DropDownProps) {
   return (

@@ -11,23 +11,20 @@
     box-sizing: inherit;
 }
 html{
-    scroll-behavior: smooth;
-    scroll-snap-type: y mandatory;
+ 
+ 
 }
 
 body{
     box-sizing: border-box;
-
     height: 100%;
     width: 100%;
     background-color: rgb(147, 109, 184);
     overflow-x: hidden;
-}
-.containerWrapper{
-    scroll-snap-type: y mandatory;
-}
-.scrollDirection{
-    scroll-snap-align: start;
+
+    /* scroll-snap-type: y mandatory;
+    scroll-behavior: 'smooth';
+    transition-duration: 5s; */
     
 }
 
@@ -41,7 +38,7 @@ section{
 section h2{
     font-size: 4.5rem;
     line-height:75px;
-    scroll-snap-align: center;
+    scroll-snap-align: center !important;
 }
 section h1{
     font-size: 4.5rem;
@@ -108,8 +105,6 @@ h3{
     font-family: 'Bebas Neue', sans-serif;  
 }
 .containerGPT{
-    scroll-snap-align: center;
+    scroll-snap-align: start;
 }
-.recipe{
-    scroll-snap-align: end;
-}
+

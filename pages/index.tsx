@@ -26,6 +26,7 @@ const Home: NextPage = () => {
   const [generatedBios, setGeneratedBios] = useState(""); //Almacena las biografias generadas por la AI.
   //three
 const canvasRef = useRef<null | HTMLCanvasElement>(null);
+
 const containerRef = useRef<null | any   >(null);
 
   const bioRef = useRef<null | HTMLDivElement>(null); // UseRef() Crea una referencia de un elemento en el DOM que puede cambiar, con esa referencia accedo a las propiedades y metodos del DOM.
@@ -105,26 +106,30 @@ const containerRef = useRef<null | any   >(null);
 const section1Ref = useRef(null);
 const section2Ref = useRef(null);
 const section3Ref = useRef(null);
-
-const sections: any = [section1Ref, section2Ref, section3Ref];
-
 //Scroll GSAP
 gsap.registerPlugin(ScrollTrigger);
 
 useLayoutEffect(() => {
   const container = containerRef.current;
   if (!container) return;
-
+  
   const h2Elements = Array.from(container.querySelectorAll('h2'));
   const h1Element = Array.from(container.querySelectorAll('h1'));
   const h3Elements = Array.from(container.querySelectorAll('h3'));
-
-  const animate = [...h1Element, ...h2Elements,...h3Elements].flatMap((element: any) => {
-    // Divide cada elemento en palabras separadas
-    const words = element.textContent.split(/\s+/);
-    // Reemplaza el contenido original con elementos <span> para cada palabra
-    element.innerHTML = words.map((word: any) => `<span class="word">${word}</span>`).join(' ');
-    // Retorna los elementos <span> para cada palabra
+  
+  const animate = [...h1Element, ...h2Elements, ...h3Elements].flatMap((element: any) => {
+    if (element.nodeName === 'H3') {
+      // Divide cada elemento en caracteres separados
+      const characters = element.textContent.split('');
+      // Reemplaza el contenido original con elementos <span> para cada caracter
+      element.innerHTML = characters.map((char: any) => `<span class="word">${char}</span>`).join('');
+    } else {
+      // Divide cada elemento en palabras separadas
+      const words = element.textContent.split(/\s+/);
+      // Reemplaza el contenido original con elementos <span> para cada palabra
+      element.innerHTML = words.map((word: any) => `<span class="word">${word}</span>`).join(' ');
+    }
+    // Retorna los elementos <span> para cada caracter o palabra
     return Array.from(element.querySelectorAll('.word'));
   });
   const timelines: any = [];
@@ -132,7 +137,7 @@ useLayoutEffect(() => {
     const timeline = gsap.timeline({
       defaults: {
         opacity: 0,
-        duration: 1,
+        duration: 1.2,
         ease: 'power4.inOut',
       },
     });
@@ -140,7 +145,7 @@ useLayoutEffect(() => {
     timeline.fromTo(
       element,
       { opacity: 0 },
-      { opacity: 1, delay: Math.random() * 0.8 }
+      { opacity: 1, delay: Math.random() * 0.5 }
     );
     timelines.push(timeline);
   });
@@ -162,21 +167,42 @@ useLayoutEffect(() => {
 
 }, []);
 
-
+const canvasFoodRef = useRef<null | HTMLCanvasElement>(null);
   useEffect(() => {
-    const canvas = canvasRef.current;
+    const canvas = canvasRef.current; //FRIDGE
     if (!canvas) {
       return;
     }
-    // Creamos una instancia de la escena y la cámara
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(35, canvas.width / canvas.height, 0.1, 1000);
-
     // Creamos un objeto y lo agregamos a la escena (CUBO)
     // const geometry = new THREE.BoxGeometry(1,1,1,1); 
     // const material = new THREE.MeshBasicMaterial({ color: 'white' });
     // const cube = new THREE.Mesh(geometry, material);
     // scene.add(cube);
+
+//FRIDGE
+    // Creamos una instancia de la escena y la cámara
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(35, canvas.width / canvas.height, 0.1, 1000);
+    // Movemos la cámara hacia atrás para que podamos ver el objeto //FRIDGE
+    camera.position.z = 5;
+    //Luces.
+    const ambientLight = new THREE.AmbientLight(0xffffff,0.8)
+    scene.add(ambientLight);
+    const directionalLight = new THREE.DirectionalLight(0xffffff,1)
+    directionalLight.position.set(1,2,0)
+    scene.add(directionalLight)
+    //Sizes //FRIDGE
+    const sizes = {
+    width: window.innerWidth, //es el ancho disponible para la visualización de contenido en la ventana del navegador, excluyendo la barra de herramientas, las barras de desplazamiento y los bordes de la ventana. (PIXELES)
+    height: window.innerHeight
+
+    }
+     // Creamos un renderizador y lo agregamos al DOM 
+     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true }); //habilitaría el anti-aliasing, que es una técnica utilizada para suavizar los bordes dentados en gráficos 3D. Esto puede mejorar la calidad visual de la imagen renderizada. (No todos los dispositivos aceptan esto)
+     //Agregar alpha: true a las opciones del constructor haría que el canvas del WebGLRenderer fuera transparente, permitiendo que otros elementos en la página se muestren a través del canvas. Esto puede ser útil si deseas superponer la escena 3D sobre otros elementos HTML.
+     renderer.setSize(sizes.width, sizes.height); //Declaramos el tamano del renderizador.
+     renderer.setPixelRatio(Math.min(window.devicePixelRatio,2))
+     renderer.render(scene, camera);
 
     //GLTF LOADER
     let chef: THREE.Object3D | null = null;
@@ -202,24 +228,20 @@ useLayoutEffect(() => {
       const elapsedTime= clock.getElapsedTime();
       const deltaTime = elapsedTime - lastElapsedTime
       lastElapsedTime = elapsedTime
-      
       if(!!chef){
         chef.position.y =Math.sin(elapsedTime * 1.2) * 0.04 - 0.6
       }
-      // console.log('tick')
       renderer.render(scene, camera);
       window.requestAnimationFrame(tick)
     }
     tick();
-//Scroll
-let scrollY = window.scrollY
-let currentSection = 0
-let scrollDirection: any= null
+    //Scroll
+    let scrollY = window.scrollY
+    let currentSection = 0
+    let scrollDirection: any= null
 
 
-window.addEventListener('scroll', () => {
-
-
+  window.addEventListener('scroll', () => { //FRIDGE
   const prevScrollY = scrollY
   scrollY = window.scrollY
   
@@ -228,7 +250,7 @@ window.addEventListener('scroll', () => {
   } else if (scrollY < prevScrollY) {
     scrollDirection = 'up'
   }
-console.log(scrollDirection,'scrollDirection')
+
   const newSection = Math.round(scrollY / sizes.height)
 
   if (newSection !== currentSection) {
@@ -241,13 +263,11 @@ console.log(scrollDirection,'scrollDirection')
           behavior: 'smooth'
         });
     }
-    
     if (scrollDirection === 'up') {
       console.log(currentSection * sizes.height + sizes.height * 0.5 - window.innerHeight * 0.5,'UP')
         window.scrollTo({
           top: currentSection * sizes.height + sizes.height * 0.5 - window.innerHeight * 0.5,
           behavior: 'smooth',
-        
         });
     }
     if (!!chef && currentSection === 0) {
@@ -257,14 +277,12 @@ console.log(scrollDirection,'scrollDirection')
         z: '0',
         x: '1.3'
       })
-
       gsap.to(chef.rotation, {
         duration: 1.5,
         ease: 'power2.inOut',
         y: '-7.22',
       })
     }
-
     if (!!chef && currentSection === 1) {
       gsap.to(chef.position, {
         duration: 1.5,
@@ -272,13 +290,11 @@ console.log(scrollDirection,'scrollDirection')
         z: '0',
         x: '-1.5'
       })
-
       gsap.to(chef.rotation, {
         duration: 1.5,
         ease: 'power2.inOut',
         y: '0.3',
       })
-
       if (chef.scale) {
         gsap.to(chef.scale, {
           duration: 1.5,
@@ -289,14 +305,12 @@ console.log(scrollDirection,'scrollDirection')
         })
       }
     }
-
     if (!!chef && currentSection === 2) {
       gsap.to(chef.rotation, {
         duration: 1.5,
         ease: 'power2.inOut',
         y: '-0.5'
       })
-
       gsap.to(chef.position, {
         duration: 1.5,
         ease: 'power2.inOut',
@@ -304,7 +318,6 @@ console.log(scrollDirection,'scrollDirection')
         y:'20',
        
       })
-
       gsap.to(chef.scale, {
         duration: 1.5,
         ease: 'power2.inOut',
@@ -312,44 +325,83 @@ console.log(scrollDirection,'scrollDirection')
         y: 0.5,
         z: 0.5,
       })
-
-    
     }
         }   
-      })
+   })
       scene.add(glb.scene)
+    }) //FINISH LOADER
+
+    //FOOD
+    const canvasFood = canvasFoodRef.current; //FOOD
+    console.log(canvasFood,'canvasFood')
+    if (!canvasFood) {
+      return;
+    }
+    const scene2 = new THREE.Scene();
+    const camera2 = new THREE.PerspectiveCamera(25, canvasFood.offsetWidth / canvasFood.offsetHeight, 0.1, 1000);   
+    camera2.position.z =5;
+    const renderer2 = new THREE.WebGLRenderer({canvas: canvasFood, antialias:true, alpha:true});
+    renderer2.setSize(canvasFood.offsetWidth, canvasFood.offsetHeight);
+    renderer2.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer2.render(scene2, camera2)
+    console.log(renderer2,'renderer2')
+     //Luces.
+     const ambientLightF = new THREE.AmbientLight(0xffffff,0.8)
+     scene2.add(ambientLightF);
+     const directionalLightF = new THREE.DirectionalLight(0xffffff,1)
+     directionalLight.position.set(1,2,0)
+     scene2.add(directionalLightF)
+  
+    let food: THREE.Object3D | null = null;
+    const loader2 = new GLTFLoader();
+    loader2.load('/low_poly_food.glb',(glb)=>{
+     const cake = glb.scene.getObjectByName('Cake_lambert1_0'); 
+     const carrot = glb.scene.getObjectByName('Carrot_lambert1_0')
+     const chicken = glb.scene.getObjectByName('ChickenLeg_lambert1_0');
+     const apple = glb.scene.getObjectByName('Apple_lambert1_0');
+     const avocado = glb.scene.getObjectByName('Avocado_lambert1_0');
+
+      food = glb.scene;
+      console.log(food,'food')
+      const radius = 5.2;
+      food.rotation.x = Math.PI * 2
+      food.rotation.y = Math.PI * 1.4
+      food.rotation.z = Math.PI * 2
+      food.position.y = Math.PI * 0.2
+      food.position.x =Math.PI * -0.2
+      food.scale.set(radius, radius,radius)
+
+      scene2.add(glb.scene)
+
+      if (cake) {
+        cake.position.set(0, -5, 3); // Set the position of the cake mesh
+         cake.rotation.set(0.4, -5.2, -0.6); // Set the position of the cake mesh
+      }
+      if(carrot){
+        carrot.position.set(-25, -34, 0); // Set the position of the cake mesh
+        carrot.rotation.set(0,4.8,0)// Set the position of the cake mesh
+      }
+      if(chicken){
+        chicken.position.set(-40, -10, -55); // Set the position of the cake mesh
+        chicken.rotation.set(0.3,4.5,0) // Set the position of the cake mesh
+      }
+      if(apple){
+        apple.position.set(30, -20, -40); // Set the position of the cake mesh
+        // Set the position of the cake mesh
+      }
+      if(avocado){
+        avocado.position.set(0, -8, -20); // Set the position of the cake mesh
+        avocado.rotation.set(0,-5,0)
+      }
+      renderer2.render(scene2, camera2);
     })
-  console.log(chef,'chef')
 //On reload
 window.onbeforeunload = function(){ //Al actualizar la pagina, vuelve al scroll en 0
   window.scrollTo(0,0)
 }  
-
-//Sizes
-const sizes = {
-  width: window.innerWidth, //es el ancho disponible para la visualización de contenido en la ventana del navegador, excluyendo la barra de herramientas, las barras de desplazamiento y los bordes de la ventana. (PIXELES)
-  height: window.innerHeight
-}
-
-// Movemos la cámara hacia atrás para que podamos ver el objeto
-camera.position.z = 5;
-//Luces.
-const ambientLight = new THREE.AmbientLight(0xffffff,0.8)
-scene.add(ambientLight);
-const directionalLight = new THREE.DirectionalLight(0xffffff,1)
-directionalLight.position.set(1,2,0)
-scene.add(directionalLight)
-
-// Creamos un renderizador y lo agregamos al DOM
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true }); //habilitaría el anti-aliasing, que es una técnica utilizada para suavizar los bordes dentados en gráficos 3D. Esto puede mejorar la calidad visual de la imagen renderizada. (No todos los dispositivos aceptan esto)
-                                                                        //Agregar alpha: true a las opciones del constructor haría que el canvas del WebGLRenderer fuera transparente, permitiendo que otros elementos en la página se muestren a través del canvas. Esto puede ser útil si deseas superponer la escena 3D sobre otros elementos HTML.
-renderer.setSize(sizes.width, sizes.height); //Declaramos el tamano del renderizador.
-renderer.setPixelRatio(Math.min(window.devicePixelRatio,2))
-renderer.render(scene, camera);
   }, []);
   return (
-    <div className="flex w-full  flex-col containerWrapper "ref={containerRef}>
-         <ScrollHandler sections={sections} />
+    <div className="flex w-full flex-col containerWrapper relative "ref={containerRef}>
       <Head>
         <title>Food Recipe Generator</title>
         <link rel="icon" href="/favicon.ico" />
@@ -357,10 +409,7 @@ renderer.render(scene, camera);
 
       </Head>
       <main className="flex  w-full flex-col relative ">
-      <canvas 
-      ref={canvasRef} 
-  
-    />
+        <canvas ref={canvasRef}/>
         <section className='one' >
           <div className="container " ref={section1Ref} >
             <div className="hero ">
@@ -387,28 +436,26 @@ renderer.render(scene, camera);
             </div>
           </div>
         </section>
-        </main>
-        <div className="max-w-xl w-full  self-center  containerGPT">
-        <h3 className="text-center text-white w-full font-bold">CREATE YOUR RECIPE</h3>
-          <div className="flex mt-10 items-center space-x-3 chatgpt">
-            <Image
+      </main>
+       {/*CHATGPT3*/}
+      
+      <div className="containerGPT relative">
+      <canvas ref={canvasFoodRef} className="canvasFood" data-name="canvas-food" />
+        <div className="containerResponse ">
+           <h3 className="text-center text-white w-full font-bold">CREATE YOUR RECIPE</h3>
+           <div className="flex mt-10 items-center space-x-3 chatgpt">
+             <Image
               src="/1-black.png"
               width={30}
               height={30}
               alt="1 icon"
               className="mb-5 sm:mb-0"
-            />
-            <p className="text-left font-medium">
-             Write down the ingredients you have in your fridge.
-              {/* <span className="text-slate-500">
-                (or write a few sentences about yourself)
-              </span> */}
-              
-            </p>
-          </div>
-
-          {/*CHATGPT3*/}
-          <textarea
+             />
+             <p className="text-left font-medium text-white">
+              Write down the ingredients you have in your fridge.       
+             </p>
+           </div>
+         <textarea
             value={bio}
             onChange={(e) => setBio(e.target.value)} //Se almacen cada palabra agregada
             rows={4}
@@ -419,7 +466,7 @@ renderer.render(scene, camera);
           />
           <div className="flex mb-5 items-center space-x-3 ">
             <Image src="/2-black.png" width={30} height={30} alt="1 icon" />
-            <p className="text-left font-medium">Select your type of diet.</p>
+            <p className="text-left font-medium text-white">Select your type of diet.</p>
           </div>
           <div className="block">
             <DropDown vibe={vibe} setVibe={(newVibe) => setVibe(newVibe)} />  {/*Lista de opciones, en el archivo dropDown.tsx*/}
@@ -442,40 +489,34 @@ renderer.render(scene, camera);
             </button>
           )}
         </div>
-        <Toaster  //Mensajes emergentes
-          position="top-center"
-          reverseOrder={false}
-          toastOptions={{ duration: 2000 }}
-        />
-        {/* <hr className="h-px bg-gray-700 border-1 dark:bg-gray-700" /> */}
-        <div className="space-y-10 my-10">
-        {generatedBios && (
-  <>
-    <div className="response">
-      <h3
-        className="sm:text-4xl text-4xl font-bold text-white text-center "
-        ref={bioRef}
-      >
-        YOUR FOOD RECIPE!
-      </h3>
-    </div>
-    <div className="space-y-8 flex flex-col items-center justify-center max-w-xl mx-auto">
-      <div
-        className="bg-white rounded-xl shadow-md p-4 hover:bg-gray-100 transition cursor-copy border"
-        onClick={() => {
-          navigator.clipboard.writeText(generatedBios);
-          toast("Bio copied to clipboard", {
-            icon: "✂️",
-          });
-        }}
-      >
-        <p className="recipe">{generatedBios}</p>
+         <div className=" containerToaster">
+         <Toaster  //Mensajes emergentes
+            position="top-center"
+            reverseOrder={false}
+            toastOptions={{ duration: 2000 }}
+          />
+          {generatedBios && (
+           <>
+             <div className="response">
+               <h3 className="sm:text-4xl text-4xl font-bold text-white text-center "ref={bioRef}>
+                  YOUR FOOD RECIPE!
+               </h3>
+             </div>
+             <div className="space-y-8 flex flex-col items-center justify-center max-w-xl mx-auto">
+               <div className="bg-white rounded-xl shadow-md p-4 hover:bg-gray-100 transition cursor-copy border"
+                    onClick={() => {
+                      navigator.clipboard.writeText(generatedBios);
+                      toast("Bio copied to clipboard", { icon: "✂️",});
+                       }}>
+                 <p className="recipe">{generatedBios}</p>
+               </div>
+             </div>
+           </>
+          )}
+         </div>
+        
       </div>
-    </div>
-  </>
-)}
-        </div>
-      
+
     </div>
   );
 };

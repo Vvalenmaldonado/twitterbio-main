@@ -103,9 +103,7 @@ const containerRef = useRef<null | any   >(null);
 
 
 //Scroll direction section
-const section1Ref = useRef(null);
-const section2Ref = useRef(null);
-const section3Ref = useRef(null);
+
 //Scroll GSAP
 gsap.registerPlugin(ScrollTrigger);
 
@@ -116,6 +114,10 @@ useLayoutEffect(() => {
   const h2Elements = Array.from(container.querySelectorAll('h2'));
   const h1Element = Array.from(container.querySelectorAll('h1'));
   const h3Elements = Array.from(container.querySelectorAll('h3'));
+  const chatGptGenerator = Array.from(container.querySelectorAll('.animateOpacity'));
+  console.log(chatGptGenerator, 'chatGptGenerator')
+
+  
   
   const animate = [...h1Element, ...h2Elements, ...h3Elements].flatMap((element: any) => {
     if (element.nodeName === 'H3') {
@@ -132,6 +134,8 @@ useLayoutEffect(() => {
     // Retorna los elementos <span> para cada caracter o palabra
     return Array.from(element.querySelectorAll('.word'));
   });
+  
+animate.push(...chatGptGenerator)
   const timelines: any = [];
   animate.forEach((element: any) => {
     const timeline = gsap.timeline({
@@ -151,7 +155,6 @@ useLayoutEffect(() => {
   });
 
   animate.forEach((element: any, index: number) => {
-    console.log(element,'element')
       ScrollTrigger.create({
         trigger: element,
         start: 'top 85%',
@@ -169,15 +172,106 @@ useLayoutEffect(() => {
 
 const canvasFoodRef = useRef<null | HTMLCanvasElement>(null);
   useEffect(() => {
+
+    
+    //FOOD
+    const canvasFood = canvasFoodRef.current; //FOOD
+ 
+    if (!canvasFood) {
+      return;
+    }
+    const scene2 = new THREE.Scene();
+    const camera2 = new THREE.PerspectiveCamera(25, canvasFood.offsetWidth / canvasFood.offsetHeight, 0.1, 1000);   
+    camera2.position.z =5;
+    const renderer2 = new THREE.WebGLRenderer({canvas: canvasFood, antialias:true, alpha:true});
+    renderer2.setSize(canvasFood.offsetWidth, canvasFood.offsetHeight);
+    renderer2.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer2.render(scene2, camera2)
+    
+     //Luces.
+     const ambientLightF = new THREE.AmbientLight(0xffffff,0.8)
+     scene2.add(ambientLightF);
+     const directionalLightF = new THREE.DirectionalLight(0xffffff,1)
+     directionalLightF.position.set(1,2,0)
+     scene2.add(directionalLightF)
+  
+    let chef: THREE.Object3D | null = null;
+    let cake: THREE.Object3D | undefined;
+    let apple: THREE.Object3D | undefined;
+    let avocado: THREE.Object3D | undefined;
+    let chicken: THREE.Object3D | undefined;
+    let cheese: THREE.Object3D | null = null;
+    let egg: THREE.Object3D | null = null;
+    let food: THREE.Object3D | null = null;
+    let carrot: THREE.Object3D | undefined;
+    const loader = new GLTFLoader();
+    loader.load('/low_poly_food.glb',(glb)=>{
+      cake = glb.scene.getObjectByName('Cake_lambert1_0'); 
+      carrot = glb.scene.getObjectByName('Carrot_lambert1_0') 
+      chicken = glb.scene.getObjectByName('ChickenLeg_lambert1_0');
+      apple = glb.scene.getObjectByName('Apple_lambert1_0');
+      avocado = glb.scene.getObjectByName('Avocado_lambert1_0');
+      food = glb.scene;
+      const radius = 5.2;
+      food.rotation.x = Math.PI * 2
+      food.rotation.y = Math.PI * 1.4
+      food.rotation.z = Math.PI * 2
+      food.position.y = Math.PI * 0.2
+      food.position.x =Math.PI * -0.2
+      food.scale.set(radius, radius,radius)
+      
+
+         // Animamos el objeto
+    const clock2 = new THREE.Clock()
+    let lastElapsedTime2 = 0
+    //Animacion Adentro del renderizado.
+    function tick2() {
+      const elapsedTime2 = clock2.getElapsedTime();
+      lastElapsedTime2 = elapsedTime2
+      if(cake){
+        // cake.position.set(0, -5, 3);
+        cake.rotation.set(0.4, -5.2, -0.6); 
+        cake.position.y = Math.sin(elapsedTime2 * 1.2) * 0.4 - 6
+       
+      }
+      if(avocado){
+        avocado.position.set(0, -8, -20); // Set the position of the cake mesh
+        avocado.rotation.set(0,-5,0)
+        avocado.position.y = Math.sin(elapsedTime2 * 2) * 0.3 - 4
+       }
+       if(apple){
+        apple.position.set(30, -20, -40); 
+        apple.position.y = Math.sin(elapsedTime2 * 1.5) * 0.35 - 20
+       }
+        if(chicken){
+        chicken.position.set(-40, -10, -55); // Set the position of the cake mesh
+        chicken.rotation.set(0.3,4.5,0) // Set the position of the cake mesh
+        chicken.position.y = Math.sin(elapsedTime2 * 1.6) * 0.6 - 8
+        }
+        if(carrot){
+        carrot.position.set(-25,-34,0)  
+        carrot.rotation.set(0,4.8,0)
+        carrot.position.y = Math.sin(elapsedTime2 * 2.5) * 0.3 - 35
+        }
+        if(egg){
+          egg.position.y = Math.sin(elapsedTime2 * 1) * 0.05 - 1
+        }
+        if(cheese ){   
+          cheese.position.y = Math.sin(elapsedTime2 * 1.3) * 0.05 - 0.5
+        }
+      renderer2.render(scene2, camera2);
+      window.requestAnimationFrame(tick2);
+    }
+    tick2()
+    scene2.add(food)
+    renderer2.render(scene2, camera2);
+    })
+
     const canvas = canvasRef.current; //FRIDGE
     if (!canvas) {
       return;
     }
-    // Creamos un objeto y lo agregamos a la escena (CUBO)
-    // const geometry = new THREE.BoxGeometry(1,1,1,1); 
-    // const material = new THREE.MeshBasicMaterial({ color: 'white' });
-    // const cube = new THREE.Mesh(geometry, material);
-    // scene.add(cube);
+
 
 //FRIDGE
     // Creamos una instancia de la escena y la cámara
@@ -204,11 +298,10 @@ const canvasFoodRef = useRef<null | HTMLCanvasElement>(null);
      renderer.setPixelRatio(Math.min(window.devicePixelRatio,2))
      renderer.render(scene, camera);
 
-    //GLTF LOADER
-    let chef: THREE.Object3D | null = null;
-    const loader = new GLTFLoader();
+    //GLTF LOADER CHEF
+   
+   
     loader.load('/cute_refrigerator.glb',(glb)=>{ 
-
        chef = glb.scene;
       const radius = 0.4;
       chef.position.x =1.3
@@ -217,12 +310,9 @@ const canvasFoodRef = useRef<null | HTMLCanvasElement>(null);
       chef.rotation.y = Math.PI * 1.7
       chef.rotation.z = Math.PI * 2
       chef.scale.set(radius, radius,radius)
-
        // Animamos el objeto
     const clock = new THREE.Clock()
     let lastElapsedTime = 0
-   
-
     //Animacion Adentro del renderizado.
     function tick() {
       const elapsedTime= clock.getElapsedTime();
@@ -239,8 +329,6 @@ const canvasFoodRef = useRef<null | HTMLCanvasElement>(null);
     let scrollY = window.scrollY
     let currentSection = 0
     let scrollDirection: any= null
-
-
   window.addEventListener('scroll', () => { //FRIDGE
   const prevScrollY = scrollY
   scrollY = window.scrollY
@@ -250,7 +338,6 @@ const canvasFoodRef = useRef<null | HTMLCanvasElement>(null);
   } else if (scrollY < prevScrollY) {
     scrollDirection = 'up'
   }
-
   const newSection = Math.round(scrollY / sizes.height)
 
   if (newSection !== currentSection) {
@@ -283,7 +370,7 @@ const canvasFoodRef = useRef<null | HTMLCanvasElement>(null);
         y: '-7.22',
       })
     }
-    if (!!chef && currentSection === 1) {
+    if (!!chef && currentSection === 1 && cheese && egg) {
       gsap.to(chef.position, {
         duration: 1.5,
         ease: 'power2.inOut',
@@ -304,8 +391,24 @@ const canvasFoodRef = useRef<null | HTMLCanvasElement>(null);
           z: 0.4,
         })
       }
+      if(cheese){
+        gsap.to(cheese.position, {
+          x: -20,
+          duration: 1.5,
+          ease: "power1.out",
+          delay: 0,
+        })
+      }
+      if(egg){
+        gsap.to(egg.position, {
+          x: 20,
+          duration: 1.5,
+          ease: "power1.out",
+          delay: 0.4,
+        })
+      }
     }
-    if (!!chef && currentSection === 2) {
+    if (chef && currentSection === 2 && cheese && egg) {
       gsap.to(chef.rotation, {
         duration: 1.5,
         ease: 'power2.inOut',
@@ -325,76 +428,59 @@ const canvasFoodRef = useRef<null | HTMLCanvasElement>(null);
         y: 0.5,
         z: 0.5,
       })
+      gsap.to(cheese.position, {
+        x:-2.05,
+        duration: 1,
+        ease: "power1.out",
+        delay: 0.5,
+        toggleActions: "play reverse play reverse"
+      })
+      gsap.to(egg.position, {
+        x: 2,
+        duration: 1,
+        ease: "power1.out",
+        delay: 0.9,
+
+      })
     }
+    if(currentSection === 3 && cake){
+      console.log(cake, 'cakeot')
+      gsap.fromTo(cake.position, {x: 50,y: 0,z:0},{x: 0,y:-5,z:3, duration: 1, ease: "power1.out", delay: 0.4,})
+     
+      // gsap.fromTo(cake.scale, {x: 0.4,y: 0,z:0},{x: 0.4,y:-5.2,z:-0.6, duration: 1, ease: "power1.out", delay: 0.4,})!
+    }
+    console.log(currentSection, cake,'currentSection22222')
         }   
    })
       scene.add(glb.scene)
     }) //FINISH LOADER
-
-    //FOOD
-    const canvasFood = canvasFoodRef.current; //FOOD
-    console.log(canvasFood,'canvasFood')
-    if (!canvasFood) {
-      return;
-    }
-    const scene2 = new THREE.Scene();
-    const camera2 = new THREE.PerspectiveCamera(25, canvasFood.offsetWidth / canvasFood.offsetHeight, 0.1, 1000);   
-    camera2.position.z =5;
-    const renderer2 = new THREE.WebGLRenderer({canvas: canvasFood, antialias:true, alpha:true});
-    renderer2.setSize(canvasFood.offsetWidth, canvasFood.offsetHeight);
-    renderer2.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer2.render(scene2, camera2)
-    console.log(renderer2,'renderer2')
-     //Luces.
-     const ambientLightF = new THREE.AmbientLight(0xffffff,0.8)
-     scene2.add(ambientLightF);
-     const directionalLightF = new THREE.DirectionalLight(0xffffff,1)
-     directionalLight.position.set(1,2,0)
-     scene2.add(directionalLightF)
-  
-    let food: THREE.Object3D | null = null;
-    const loader2 = new GLTFLoader();
-    loader2.load('/low_poly_food.glb',(glb)=>{
-     const cake = glb.scene.getObjectByName('Cake_lambert1_0'); 
-     const carrot = glb.scene.getObjectByName('Carrot_lambert1_0')
-     const chicken = glb.scene.getObjectByName('ChickenLeg_lambert1_0');
-     const apple = glb.scene.getObjectByName('Apple_lambert1_0');
-     const avocado = glb.scene.getObjectByName('Avocado_lambert1_0');
-
-      food = glb.scene;
-      console.log(food,'food')
-      const radius = 5.2;
-      food.rotation.x = Math.PI * 2
-      food.rotation.y = Math.PI * 1.4
-      food.rotation.z = Math.PI * 2
-      food.position.y = Math.PI * 0.2
-      food.position.x =Math.PI * -0.2
-      food.scale.set(radius, radius,radius)
-
-      scene2.add(glb.scene)
-
-      if (cake) {
-        cake.position.set(0, -5, 3); // Set the position of the cake mesh
-         cake.rotation.set(0.4, -5.2, -0.6); // Set the position of the cake mesh
-      }
-      if(carrot){
-        carrot.position.set(-25, -34, 0); // Set the position of the cake mesh
-        carrot.rotation.set(0,4.8,0)// Set the position of the cake mesh
-      }
-      if(chicken){
-        chicken.position.set(-40, -10, -55); // Set the position of the cake mesh
-        chicken.rotation.set(0.3,4.5,0) // Set the position of the cake mesh
-      }
-      if(apple){
-        apple.position.set(30, -20, -40); // Set the position of the cake mesh
-        // Set the position of the cake mesh
-      }
-      if(avocado){
-        avocado.position.set(0, -8, -20); // Set the position of the cake mesh
-        avocado.rotation.set(0,-5,0)
-      }
-      renderer2.render(scene2, camera2);
+    
+    loader.load('/cheese_low_poly.glb',(glb)=>{
+      cheese = glb.scene;
+      const radius = 0.004;
+      cheese.position.x = -20   //-2.05
+      cheese.position.y = -0.7
+      cheese.rotation.x = Math.PI * 2
+      cheese.rotation.y = Math.PI * 1.5
+      cheese.rotation.z = Math.PI * 2
+      cheese.scale.set(radius, radius,radius)
+      scene.add(glb.scene)
+      renderer.render(scene, camera);
     })
+    
+    loader.load('/egg.glb',(glb)=>{
+      egg = glb.scene;
+      const radius = 0.05;
+      egg.position.x = 20 //2
+      egg.position.y = -1
+      egg.rotation.x = Math.PI * 2
+      egg.rotation.y = Math.PI * 1.5
+      egg.rotation.z = Math.PI * 2
+      egg.scale.set(radius, radius,radius)
+      scene.add(glb.scene)
+      renderer.render(scene, camera);
+    })
+
 //On reload
 window.onbeforeunload = function(){ //Al actualizar la pagina, vuelve al scroll en 0
   window.scrollTo(0,0)
@@ -411,7 +497,7 @@ window.onbeforeunload = function(){ //Al actualizar la pagina, vuelve al scroll 
       <main className="flex  w-full flex-col relative ">
         <canvas ref={canvasRef}/>
         <section className='one' >
-          <div className="container " ref={section1Ref} >
+          <div className="container "  >
             <div className="hero ">
             <h2 className="animate max-w-[900px] font-bold text-white ">
               Do you want to make a meal but don't know what to make?
@@ -420,7 +506,7 @@ window.onbeforeunload = function(){ //Al actualizar la pagina, vuelve al scroll 
           </div>
         </section>
         <section className='two'>
-          <div className="container "  ref={section2Ref}>
+          <div className="container " >
             <div className="hero ">
             <h2  className="animate nextS max-w-[900px] font-bold text-white">
             Looking for recipes on Google but missing ingredients at home?
@@ -429,7 +515,7 @@ window.onbeforeunload = function(){ //Al actualizar la pagina, vuelve al scroll 
           </div>
         </section>
         <section className='three'>
-          <div className="container "ref={section3Ref} >
+          <div className="container " >
             <div className="hero  ">
             <h1  className="animate threeSection  max-w-[900px] font-bold text-white text-center ">
             Use CHATGPT3 virtual assistant to generate recipes with your current ingredients!  </h1>
@@ -449,9 +535,9 @@ window.onbeforeunload = function(){ //Al actualizar la pagina, vuelve al scroll 
               width={30}
               height={30}
               alt="1 icon"
-              className="mb-5 sm:mb-0"
+              className="mb-5 sm:mb-0 animateOpacity"
              />
-             <p className="text-left font-medium text-white">
+             <p className="text-left font-medium text-white animateOpacity">
               Write down the ingredients you have in your fridge.       
              </p>
            </div>
@@ -459,22 +545,22 @@ window.onbeforeunload = function(){ //Al actualizar la pagina, vuelve al scroll 
             value={bio}
             onChange={(e) => setBio(e.target.value)} //Se almacen cada palabra agregada
             rows={4}
-            className="w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black my-5 "
+            className="w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black my-5 animateOpacity"
             placeholder={
               "Example: Avocado, 2 eggs, 240g Salmon, Soja, 2 Carrots."
             }
           />
-          <div className="flex mb-5 items-center space-x-3 ">
+          <div className="flex mb-5 items-center space-x-3 animateOpacity ">
             <Image src="/2-black.png" width={30} height={30} alt="1 icon" />
             <p className="text-left font-medium text-white">Select your type of diet.</p>
           </div>
-          <div className="block">
+          <div className="block animateOpacity">
             <DropDown vibe={vibe} setVibe={(newVibe) => setVibe(newVibe)} />  {/*Lista de opciones, en el archivo dropDown.tsx*/}
           </div>
 
           {!loading && ( //Si el button no esta clickeado, NO ESTA CARGANDO.
             <button
-              className="bg-black rounded-xl text-white font-medium px-4 py-2 sm:mt-10 mt-8 hover:bg-black/80 w-full"
+              className="bg-black rounded-xl text-white font-medium px-4 py-2 sm:mt-10 mt-8 hover:bg-black/80 w-full "
               onClick={(e) => generateBio(e)}
             >
               Generate your food recipe &rarr;

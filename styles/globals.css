@@ -102,7 +102,7 @@ h3{
     width: 100%;
     flex-direction: row;
     align-self: center;
-    align-items: start;
+    align-items: center;
     justify-content: space-between;
     padding-bottom: 80px;
     

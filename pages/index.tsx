@@ -443,12 +443,12 @@ const canvasFoodRef = useRef<null | HTMLCanvasElement>(null);
 
       })
     }
-    if(currentSection === 3 && cake){
-      console.log(cake, 'cakeot')
-      gsap.fromTo(cake.position, {x: 50,y: 0,z:0},{x: 0,y:-5,z:3, duration: 1, ease: "power1.out", delay: 0.4,})
+    // if(currentSection === 3 && cake){ //cake animation fail
+    //   console.log(cake, 'cakeot')
+    //   gsap.fromTo(cake.position, {x: 50,y: 0,z:0},{x: 0,y:-5,z:3, duration: 1, ease: "power1.out", delay: 0.4,})
      
-      // gsap.fromTo(cake.scale, {x: 0.4,y: 0,z:0},{x: 0.4,y:-5.2,z:-0.6, duration: 1, ease: "power1.out", delay: 0.4,})!
-    }
+    //   // gsap.fromTo(cake.scale, {x: 0.4,y: 0,z:0},{x: 0.4,y:-5.2,z:-0.6, duration: 1, ease: "power1.out", delay: 0.4,})!
+    // }
     console.log(currentSection, cake,'currentSection22222')
         }   
    })
